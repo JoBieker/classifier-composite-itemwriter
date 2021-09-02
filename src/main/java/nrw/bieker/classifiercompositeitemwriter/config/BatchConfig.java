@@ -13,6 +13,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -49,25 +50,16 @@ public class BatchConfig {
 
     @Bean
     public FlatFileItemWriter<Person> flatFileItemWriter() throws Exception{
-        FlatFileItemWriter<Person> itemWriter = new FlatFileItemWriter<>();
-
-        Resource resource = new FileSystemResource("person.csv");
-        itemWriter.setName("write-mailverteiler-list");
-        itemWriter.setResource(resource);
-        itemWriter.setShouldDeleteIfExists(true);
-        itemWriter.setShouldDeleteIfEmpty(true);
-        itemWriter.setEncoding("windows-1250");
-        DelimitedLineAggregator<Person> delimitedLineAggregator = new DelimitedLineAggregator<>();
-        delimitedLineAggregator.setDelimiter(";");
-        BeanWrapperFieldExtractor<Person> fieldExtractor = new BeanWrapperFieldExtractor<>();
-        fieldExtractor.setNames(FIELDS);
-        StringHeaderWriter headerWriter = new StringHeaderWriter(toStringFieldNames(FIELDS));
-        delimitedLineAggregator.setFieldExtractor(fieldExtractor);
-        itemWriter.setLineAggregator(delimitedLineAggregator);
-        itemWriter.setHeaderCallback(headerWriter);
-        itemWriter.afterPropertiesSet();
-
-        return itemWriter;
+        return new FlatFileItemWriterBuilder<Person>()
+                .name("test-classifier-builder")
+                .resource(new FileSystemResource("person.csv"))
+                .delimited()
+                .delimiter(";")
+                .names(FIELDS)
+                .headerCallback(new StringHeaderWriter(toStringFieldNames(FIELDS)))
+                .encoding("windows-1250")
+                .shouldDeleteIfExists(true)
+                .build();
     }
 
 
