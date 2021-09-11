@@ -1,26 +1,24 @@
 package nrw.bieker.classifiercompositeitemwriter.config;
 
+import lombok.RequiredArgsConstructor;
+import nrw.bieker.classifiercompositeitemwriter.model.Item;
 import nrw.bieker.classifiercompositeitemwriter.model.Person;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.classify.Classifier;
 
-public class PersonClassifier implements Classifier<Person, ItemWriter<? super Person>> {
+@RequiredArgsConstructor
+public class PersonClassifier implements Classifier<Item, ItemWriter<? super Item>> {
 
-    /**
-     * Minella, Michael T.. The Definitive Guide to Spring Batch (Kindle-Positionen9130-9131). Apress. Kindle-Version.
-     */
-    private ItemWriter<Person> evenItemWriter;
-    private ItemWriter<Person> oddItemWriter;
-
-    public PersonClassifier(FlatFileItemWriter<Person> evenItemWriter, FlatFileItemWriter<Person> oddItemWriter) {
-        this.evenItemWriter = evenItemWriter;
-        this.oddItemWriter = oddItemWriter;
-    }
+    private final ItemWriter<Item> evenItemWriter;
+    private final ItemWriter<Item> oddItemWriter;
 
     @Override
-    public ItemWriter<Person> classify(Person person) {
-        if(person.getId() % 2 == 0) return evenItemWriter;
-        return oddItemWriter;
+    public ItemWriter<Item> classify(Item item) {
+        if(item.getId() % 2 == 0) {
+            return evenItemWriter;
+        }
+        else {
+            return oddItemWriter;
+        }
     }
 }
